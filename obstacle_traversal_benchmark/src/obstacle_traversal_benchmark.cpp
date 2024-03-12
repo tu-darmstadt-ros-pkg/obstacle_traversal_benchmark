@@ -11,9 +11,11 @@ ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh
  : nh_(nh), pnh_(pnh)
 {
   loadParameters(pnh);
-  pose_predictor_ = createPosePredictor(pnh);
+  ros::NodeHandle pose_prediction_nh(pnh, "sdf_contact_estimation");
+  pose_predictor_ = createPosePredictor(pose_prediction_nh);
   bag_reader_ = std::make_shared<BagReader>(bag_file_path_, pose_predictor_->robotModel()->jointNames(), time_resolution_);
 }
+
 void ObstacleTraversalBenchmark::runEvaluation() {
   std::vector<Trial> trials;
   if (!bag_reader_->parse(trials, checkpoints_)) {

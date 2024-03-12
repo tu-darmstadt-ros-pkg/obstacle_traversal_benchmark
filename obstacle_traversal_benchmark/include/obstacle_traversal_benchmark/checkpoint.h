@@ -4,9 +4,12 @@
 #include <Eigen/Eigen>
 
 namespace obstacle_traversal_benchmark {
-struct Checkpoint {
 
+struct Checkpoint {
+  Eigen::Vector3d p1;
+  Eigen::Vector3d p2;
 };
+
 }
 
 #endif

@@ -5,6 +5,7 @@
 #include <geometry_msgs/Pose.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Transform.h>
+#include <ros/ros.h>
 
 namespace obstacle_traversal_benchmark {
 
@@ -19,6 +20,15 @@ std::string setToString(const std::set<T>& set) {
   }
   ss << "]";
   return ss.str();
+}
+
+template <typename T>
+bool loadMandatoryParameter(const ros::NodeHandle& nh, const std::string& key, T& val) {
+  if (!nh.getParam(key, val)) {
+    ROS_ERROR_STREAM("Failed to load mandatory parameter '" << nh.getNamespace() << "/" << key << "'.");
+    return false;
+  }
+  return true;
 }
 
 hector_math::Pose<double> poseMsgToHectorMath(const geometry_msgs::Pose& pose_msg);

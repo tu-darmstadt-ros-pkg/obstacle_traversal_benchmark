@@ -1,14 +1,14 @@
 #include <ros/ros.h>
 
-//#include <hector_pose_prediction_benchmark/benchmark_suite.h>
+#include <obstacle_traversal_benchmark/obstacle_traversal_benchmark.h>
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "obstacle_traversal_benchmark");
 
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
-//  hector_pose_prediction_benchmark::BenchmarkSuite benchmark(nh, pnh);
-//  benchmark.runBenchmark();
+  obstacle_traversal_benchmark::ObstacleTraversalBenchmark benchmark(nh, pnh);
+  benchmark.runEvaluation();
 
   ros::spin();
   return 0;

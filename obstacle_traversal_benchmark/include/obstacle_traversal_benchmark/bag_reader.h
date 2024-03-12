@@ -6,15 +6,16 @@
 #include <tf2_msgs/TFMessage.h>
 #include <tf2_ros/buffer.h>
 #include <nav_msgs/Path.h>
+#include <sensor_msgs/JointState.h>
 
 #include <obstacle_traversal_benchmark/trial.h>
-#include <sensor_msgs/JointState.h>
+#include <obstacle_traversal_benchmark/checkpoint.h>
 
 namespace obstacle_traversal_benchmark {
 class BagReader {
 public:
   BagReader(std::string bag_path, std::vector<std::string> joint_names, double time_resolution);
-  bool parse(std::vector<Trial>& trials);
+  bool parse(std::vector<Trial>& trials, const std::vector<Checkpoint>& checkpoints);
 private:
   bool updateTfBuffer(const rosbag::MessageInstance& msg);
   void updateJointPositionMap(const rosbag::MessageInstance& msg);

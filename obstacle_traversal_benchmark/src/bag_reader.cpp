@@ -8,10 +8,9 @@ namespace obstacle_traversal_benchmark {
 
 BagReader::BagReader(std::string bag_path, std::vector<std::string> joint_names, double time_resolution)
   : bag_path_(std::move(bag_path)), joint_names_(std::move(joint_names)), time_resolution_(time_resolution)
-{
-}
+{}
 
-bool BagReader::parse(std::vector<Trial> &trials) {
+bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>& checkpoints) {
   tf_buffer_.clear();
   joint_position_map_.clear();
   missing_joint_states_ = std::set<std::string>(joint_names_.begin(),joint_names_.end());
@@ -29,7 +28,7 @@ bool BagReader::parse(std::vector<Trial> &trials) {
   for (const rosbag::MessageInstance& m: view) {
     // Check if next checkpoint has been passed
     // TODO
-    if (trials.empty()) {
+    if (checkpoints.empty() && trials.empty()) {
       trials.emplace_back();
     }
 

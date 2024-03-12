@@ -1,5 +1,70 @@
 #include <obstacle_traversal_benchmark/obstacle_traversal_benchmark.h>
 
+#include <obstacle_traversal_benchmark/util.h>
+#include <sdf_contact_estimation/sdf_contact_estimation.h>
+#include <hector_stability_metrics/metrics/force_angle_stability_measure.h>
+
 namespace obstacle_traversal_benchmark {
+
+ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh, const ros::NodeHandle &pnh)
+ : nh_(nh), pnh_(pnh)
+{
+  loadParameters(pnh);
+  pose_predictor_ = createPosePredictor(pnh);
+  bag_reader_ = std::make_shared<BagReader>(bag_file_path_, pose_predictor_->robotModel()->jointNames(), time_resolution_);
+}
+void ObstacleTraversalBenchmark::runEvaluation() {
+  std::vector<Trial> trials;
+  if (!bag_reader_->parse(trials, checkpoints_)) {
+    return;
+  }
+
+  for (auto& trial: trials) {
+    estimateStability(trial);
+    trial.saveToCsv("");
+  }
+}
+
+bool ObstacleTraversalBenchmark::loadParameters(const ros::NodeHandle &nh) {
+  if (!loadMandatoryParameter(nh, "bag_file_path", bag_file_path_)) {
+    return false;
+  }
+  if (!loadMandatoryParameter(nh, "result_folder", result_folder_)) {
+    return false;
+  }
+  time_resolution_ = nh.param<double>("time_resolution", 1.0);
+
+  return true;
+}
+
+hector_pose_prediction_interface::PosePredictor<double>::Ptr
+ObstacleTraversalBenchmark::createPosePredictor(const ros::NodeHandle &nh) {
+  // Map
+  ros::NodeHandle sdf_model_nh(nh, "sdf_map");
+  auto sdf_model = std::make_shared<sdf_contact_estimation::SdfModel>(sdf_model_nh);
+  sdf_model->loadFromServer(sdf_model_nh);
+  // Robot model
+  ros::NodeHandle shape_model_nh(nh, "shape_model");
+  auto shape_model = std::make_shared<sdf_contact_estimation::ShapeModel>(shape_model_nh);
+  // Predictor
+  auto sdf_pose_predictor = std::make_shared<sdf_contact_estimation::SDFContactEstimation>(nh, shape_model, sdf_model);
+  sdf_pose_predictor->enableVisualisation(false);
+  return std::static_pointer_cast<hector_pose_prediction_interface::PosePredictor<double>>(sdf_pose_predictor);
+}
+
+void ObstacleTraversalBenchmark::estimateStability(Trial &trial) {
+  for (auto& data_point: trial.getStabilityData()) {
+    pose_predictor_->robotModel()->updateJointPositions(data_point.joint_positions);
+    hector_pose_prediction_interface::SupportPolygon<double> estimated_support_polygon;
+    if (pose_predictor_->estimateSupportPolygon(data_point.robot_pose, estimated_support_polygon)) {
+      Eigen::Vector3d com_base = pose_predictor_->robotModel()->centerOfMass();
+      Eigen::Vector3d com_world = data_point.robot_pose * com_base;
+      Eigen::Vector3d gravity(0, 0, -9.81);
+      data_point.estimated_stability = hector_stability_metrics::non_differentiable::computeForceAngleStabilityMeasureValue(estimated_support_polygon.contact_hull_points, estimated_support_polygon.edge_stabilities, com_world, gravity);
+    } else {
+      data_point.estimated_stability = std::nan("");
+    }
+  }
+}
 
 }

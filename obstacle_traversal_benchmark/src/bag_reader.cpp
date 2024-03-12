@@ -29,7 +29,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
     // Check if next checkpoint has been passed
     // TODO
     if (checkpoints.empty() && trials.empty()) {
-      trials.emplace_back();
+      trials.emplace_back(m.getTime());
     }
 
     // Handle joint state msg

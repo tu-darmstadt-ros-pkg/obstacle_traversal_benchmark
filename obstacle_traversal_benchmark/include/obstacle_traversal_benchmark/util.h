@@ -34,10 +34,11 @@ bool loadMandatoryParameter(const ros::NodeHandle& nh, const std::string& key, T
 hector_math::Pose<double> poseMsgToHectorMath(const geometry_msgs::Pose& pose_msg);
 hector_math::Pose<double> transformMsgToHectorMath(const geometry_msgs::Transform& transform_msg);
 
+std::string poseToText(const hector_math::Pose<double>& pose);
+std::string getPoseLabels(const std::string& pose_name);
 
-void updateJointPositionMap(const sensor_msgs::JointStateConstPtr& joint_state_msg,
-                            std::unordered_map<std::string, double>& joint_state_map,
-                            std::set<std::string>& missing_joint_states);
+std::string vector3ToText(const geometry_msgs::Vector3& vec);
+std::string getVector3Labels(const std::string& base_name);
 
 Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot);
 

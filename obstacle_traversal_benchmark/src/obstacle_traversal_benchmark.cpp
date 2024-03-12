@@ -3,6 +3,7 @@
 #include <obstacle_traversal_benchmark/util.h>
 #include <sdf_contact_estimation/sdf_contact_estimation.h>
 #include <hector_stability_metrics/metrics/force_angle_stability_measure.h>
+#include <filesystem>
 
 namespace obstacle_traversal_benchmark {
 
@@ -21,7 +22,10 @@ void ObstacleTraversalBenchmark::runEvaluation() {
 
   for (auto& trial: trials) {
     estimateStability(trial);
-    trial.saveToCsv("");
+
+    std::filesystem::path bag_path(bag_file_path_);
+    std::string base_path = result_folder_ + "/" + bag_path.stem().string();
+    trial.saveToCsv(base_path);
   }
 }
 

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="bag_path" />
+  <arg name="map_path" />
+<!--   <arg name="rviz" default="true"/> -->
+  <arg name="robot_description" default="$(find xacro)/xacro $(find asterix_description)/urdf/asterix_ugv.urdf.xacro"/>
+
+  <!-- Load robot description -->
+  <param name="robot_description" command="$(arg robot_description)" />
+<!--   <param name="robot_description_semantic" textfile="$(find asterix_moveit_config)/config/asterix_ugv.srdf" /> -->
+
+  <node pkg="obstacle_traversal_benchmark" type="obstacle_traversal_benchmark_node" name="obstacle_traversal_benchmark" output="screen" clear_params="true" ><!--launch-prefix="gdb -args"-->
+    <param name="bag_file_path" value="$(arg bag_path)"/>
+    <param name="result_folder" value="$(find obstacle_traversal_benchmark)/data"/>
+    <param name="time_resolution" value="0.1"/>
+
+    <!-- load map -->
+    <rosparam subst_value="true" ns="sdf_contact_estimation/sdf_map">
+<!--       scenario: step_0.18 -->
+      voxel_size: 0.05
+      use_esdf: true
+      sdf_file_path: $(arg map_path)
+      truncation_distance: 0.4
+    </rosparam>
+
+    <!-- sdf contact estimation parameters -->
+    <rosparam file="$(find sdf_contact_estimation)/config/asterix_shape_config.yaml" command="load" ns="sdf_contact_estimation/shape_model" />
+    <rosparam file="$(find sdf_contact_estimation)/config/optimization.yaml" command="load" ns="sdf_contact_estimation"/>
+  </node>
+
+  <!-- rviz ui -->
+<!--   <include if="$(arg rviz)" file="$(find hector_pose_prediction_benchmark)/launch/rviz.launch"/> -->
+
+</launch>

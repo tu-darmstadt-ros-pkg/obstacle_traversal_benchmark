@@ -14,10 +14,7 @@ bool Trial::saveToCsv(const std::string &csv_file_path) const {
     return false;
   }
   std::string stability_file_path = csv_file_path + "-stability.csv";
-  if (!saveStabilityToCsv(stability_file_path)) {
-    return false;
-  }
-  return true;
+  return saveStabilityToCsv(stability_file_path);
 }
 
 bool Trial::saveImuToCsv(const std::string &csv_file_path) const {
@@ -33,14 +30,14 @@ bool Trial::saveImuToCsv(const std::string &csv_file_path) const {
   file.open(csv_file_path);
 
   file << "time,"
-       << getVector3Labels("angular_velocity")
-       << getVector3Labels("linear_acceleration")
-       << std::endl;
+       << getVector3Labels("angular_velocity") << ", "
+       << getVector3Labels("linear_acceleration") << ", "
+       << '\n';
   for (const auto& data_point: imu_data_) {
     ros::Duration duration_since_start = data_point.header.stamp - start_time_;
     file << duration_since_start.toSec() << ", ";
     file << vector3ToText(data_point.angular_velocity) << ", ";
-    file << vector3ToText(data_point.linear_acceleration) << std::endl;
+    file << vector3ToText(data_point.linear_acceleration) << '\n';
   }
 
   file.close();
@@ -61,13 +58,14 @@ bool Trial::saveStabilityToCsv(const std::string &csv_file_path) const {
 
   file << "time, "
        << getPoseLabels("robot_pose") << ", "
-       << "stability"
-       << std::endl;
+       << "stability, "
+       << '\n';
 
   for (const auto& data_point: stability_data_) {
     ros::Duration duration_since_start = data_point.time - start_time_;
+    file << duration_since_start.toSec() << ", ";
     file << poseToText(data_point.robot_pose) << ", ";
-    file << data_point.estimated_stability << std::endl;
+    file << data_point.estimated_stability << '\n';
   }
 
   file.close();

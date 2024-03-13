@@ -60,7 +60,7 @@ std::string vector3ToText(const geometry_msgs::Vector3& vec) {
   std::stringstream ss;
   ss << vec.x << ", ";
   ss << vec.y << ", ";
-  ss << vec.z << ", ";
+  ss << vec.z;
   return ss.str();
 }
 

@@ -1,6 +1,7 @@
 #include <obstacle_traversal_benchmark/bag_reader.h>
 
 #include <sensor_msgs/JointState.h>
+#include <eigen_conversions/eigen_msg.h>
 
 #include <obstacle_traversal_benchmark/util.h>
 
@@ -25,20 +26,49 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
 
   std::vector<std::string> topics{"/tf", "/tf_static", "/joint_states", "/imu/data"};
   rosbag::View view(bag, rosbag::TopicQuery(topics));
+  bool last_pose_set = false;
+  size_t next_checkpoint_index = 0;
+  Eigen::Isometry3d last_pose;
   for (const rosbag::MessageInstance& m: view) {
+    // Handle joint state msg
+    updateJointPositionMap(m);
+    // Handle tf message
+    bool buffer_updated = updateTfBuffer(m);
+
     if (checkpoints.empty()) {
       if (trials.empty()) {
         trials.emplace_back();
       }
     } else {
       // Check if next checkpoint has been passed
+      geometry_msgs::TransformStamped transform_msg;
+      try {
+        transform_msg = tf_buffer_.lookupTransform("world", "base_link",ros::Time(0));
+      }
+      catch (tf2::TransformException &ex) {
+        ROS_WARN("%s",ex.what());
+        continue;
+      }
+      Eigen::Isometry3d current_pose;
+      tf::transformMsgToEigen(transform_msg.transform, current_pose);
 
+      if (last_pose_set) {
+        const Checkpoint& next_checkpoint = checkpoints[next_checkpoint_index];
+        Eigen::Vector2d previous_position = last_pose.translation().block<2, 1>(0, 0);
+        Eigen::Vector2d current_position = current_pose.translation().block<2, 1>(0, 0);
+        Eigen::Vector2d intersection;
+        bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
+        if (intersect) {
+          ros::Duration bag_duration = m.getTime() - view.getBeginTime();
+          ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s.");
+          next_checkpoint_index = (next_checkpoint_index + 1) % checkpoints.size();
+          trials.emplace_back();
+        }
+      }
+
+      last_pose = current_pose;
+      last_pose_set = true;
     }
-
-    // Handle joint state msg
-    updateJointPositionMap(m);
-    // Handle tf message
-    bool buffer_updated = updateTfBuffer(m);
 
     // Add Data
     if (!trials.empty()) {

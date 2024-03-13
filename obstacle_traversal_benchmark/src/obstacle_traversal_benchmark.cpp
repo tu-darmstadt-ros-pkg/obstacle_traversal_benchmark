@@ -22,11 +22,12 @@ void ObstacleTraversalBenchmark::runEvaluation() {
     return;
   }
 
-  for (auto& trial: trials) {
+  for (size_t i = 0; i < trials.size(); ++i) {
+    Trial& trial = trials[i];
     estimateStability(trial);
 
     std::filesystem::path bag_path(bag_file_path_);
-    std::string base_path = result_folder_ + "/" + bag_path.stem().string();
+    std::string base_path = result_folder_ + "/" + bag_path.stem().string() + "_trial-" + std::to_string(i);
     trial.saveToCsv(base_path);
   }
 }

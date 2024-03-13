@@ -48,7 +48,12 @@ Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot);
 
 bool loadVector2FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec2_list, Eigen::Vector2d& vec2, const std::string& parameter_ns);
 
-
+// From https://stackoverflow.com/a/1968345
+bool getLineIntersection(const Eigen::Vector2d& p0,
+                         const Eigen::Vector2d& p1,
+                         const Eigen::Vector2d& p2,
+                         const Eigen::Vector2d& p3,
+                         Eigen::Vector2d& intersection);
 
 
 

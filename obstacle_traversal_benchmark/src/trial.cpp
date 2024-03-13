@@ -6,11 +6,11 @@
 namespace obstacle_traversal_benchmark {
 
 bool Trial::saveToCsv(const std::string &csv_file_path) const {
-  std::string imu_file_path = csv_file_path + "-imu.csv";
+  std::string imu_file_path = csv_file_path + "_imu.csv";
   if (!saveImuToCsv(imu_file_path)) {
     return false;
   }
-  std::string stability_file_path = csv_file_path + "-stability.csv";
+  std::string stability_file_path = csv_file_path + "_stability.csv";
   return saveStabilityToCsv(stability_file_path);
 }
 

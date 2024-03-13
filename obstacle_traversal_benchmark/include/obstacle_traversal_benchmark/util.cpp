@@ -33,7 +33,7 @@ bool createParentDirectory(const std::string& file_path) {
   return true;
 }
 
-std::string poseToText(const hector_math::Pose<double>& pose) {
+std::string poseToCsv(const hector_math::Pose<double>& pose) {
   std::stringstream ss;
   ss << pose.translation().x() << ", ";
   ss << pose.translation().y() << ", ";
@@ -56,7 +56,7 @@ std::string getPoseLabels(const std::string& pose_name) {
   return ss.str();
 }
 
-std::string vector3ToText(const geometry_msgs::Vector3& vec) {
+std::string vector3ToCsv(const geometry_msgs::Vector3& vec) {
   std::stringstream ss;
   ss << vec.x << ", ";
   ss << vec.y << ", ";
@@ -84,6 +84,33 @@ Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot) {
     yaw = std::atan2(rot.data()[1], rot.data()[0]);
   }
   return {roll, pitch, yaw};
+}
+
+bool loadVector3FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec3_list, Eigen::Vector3d& vec3, const std::string& parameter_ns) {
+  if (vec3_list.getType() != XmlRpc::XmlRpcValue::TypeArray) {
+    ROS_ERROR_STREAM("Parameter '" << parameter_ns << "' is not an array.");
+    return false;
+  }
+  if (vec3_list.size() != 3) {
+    ROS_ERROR_STREAM("Parameter " << parameter_ns << "' is not a Vector3");
+  }
+  for (int j = 0; j < 3; ++j) {
+    switch (vec3_list[j].getType()) {
+      case XmlRpc::XmlRpcValue::TypeDouble:
+        vec3[j] = static_cast<double>(vec3_list[j]);
+        break;
+      case XmlRpc::XmlRpcValue::TypeInt:
+        vec3[j] = static_cast<int>(vec3_list[j]);
+        break;
+      default:
+        ROS_ERROR_STREAM("Parameter '" << parameter_ns << "[" << j << "] is not a numeral.");
+        return false;
+    }
+  }
+  return true;
+}
+std::string vector3ToString(const Eigen::Vector3d& vec3) {
+  return "[" + std::to_string(vec3.x()) + ", " + std::to_string(vec3.y()) + ", " + std::to_string(vec3.z()) + "]";
 }
 
 }

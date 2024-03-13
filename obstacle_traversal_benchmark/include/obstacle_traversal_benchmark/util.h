@@ -22,6 +22,8 @@ std::string setToString(const std::set<T>& set) {
   return ss.str();
 }
 
+std::string vector3ToString(const Eigen::Vector3d& vec3);
+
 template <typename T>
 bool loadMandatoryParameter(const ros::NodeHandle& nh, const std::string& key, T& val) {
   if (!nh.getParam(key, val)) {
@@ -34,13 +36,18 @@ bool loadMandatoryParameter(const ros::NodeHandle& nh, const std::string& key, T
 hector_math::Pose<double> poseMsgToHectorMath(const geometry_msgs::Pose& pose_msg);
 hector_math::Pose<double> transformMsgToHectorMath(const geometry_msgs::Transform& transform_msg);
 
-std::string poseToText(const hector_math::Pose<double>& pose);
+std::string poseToCsv(const hector_math::Pose<double>& pose);
 std::string getPoseLabels(const std::string& pose_name);
 
-std::string vector3ToText(const geometry_msgs::Vector3& vec);
+std::string vector3ToCsv(const geometry_msgs::Vector3& vec);
 std::string getVector3Labels(const std::string& base_name);
 
 Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot);
+
+bool loadVector3FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec3_list, Eigen::Vector3d& vec3, const std::string& parameter_ns);
+
+
+
 
 }
 

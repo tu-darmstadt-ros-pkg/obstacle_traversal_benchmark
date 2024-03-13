@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="bag_path" />
-  <arg name="map_path" />
+  <arg name="map" />
 <!--   <arg name="rviz" default="true"/> -->
   <arg name="robot_description" default="$(find xacro)/xacro $(find asterix_description)/urdf/asterix_ugv.urdf.xacro"/>
 
@@ -19,9 +19,12 @@
 <!--       scenario: step_0.18 -->
       voxel_size: 0.05
       use_esdf: true
-      sdf_file_path: $(arg map_path)
+<!--       sdf_file_path: $(arg map_path) -->
       truncation_distance: 0.4
     </rosparam>
+
+    <!-- map config -->
+    <rosparam file="$(eval find('obstacle_traversal_benchmark') + '/config/' + arg('map') + '_config.yaml')" command="load" subst_value="true"/>
 
     <!-- sdf contact estimation parameters -->
     <rosparam file="$(find sdf_contact_estimation)/config/asterix_shape_config.yaml" command="load" ns="sdf_contact_estimation/shape_model" />

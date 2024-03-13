@@ -54,8 +54,8 @@ bool ObstacleTraversalBenchmark::loadParameters(const ros::NodeHandle &nh) {
       }
       Checkpoint checkpoint;
       if (checkpoint_dict.hasMember("p1")) {
-        if (!loadVector3FromXmlRpcValue(checkpoint_dict["p1"], checkpoint.p1,
-                                   nh.getNamespace() + "/checkpoints[" + std::to_string(i) + "]/p1")) {
+        if (!loadVector2FromXmlRpcValue(checkpoint_dict["p1"], checkpoint.p1,
+                                        nh.getNamespace() + "/checkpoints[" + std::to_string(i) + "]/p1")) {
           continue;
         }
       } else {
@@ -63,15 +63,15 @@ bool ObstacleTraversalBenchmark::loadParameters(const ros::NodeHandle &nh) {
         continue;
       }
       if (checkpoint_dict.hasMember("p2")) {
-        if (!loadVector3FromXmlRpcValue(checkpoint_dict["p2"], checkpoint.p2,
-                                   nh.getNamespace() + "/checkpoints[" + std::to_string(i) + "]/p2")) {
+        if (!loadVector2FromXmlRpcValue(checkpoint_dict["p2"], checkpoint.p2,
+                                        nh.getNamespace() + "/checkpoints[" + std::to_string(i) + "]/p2")) {
           continue;
         }
       } else {
         ROS_ERROR_STREAM("Parameter '" << nh.getNamespace() << "/checkpoints[" << i << "]/p2 is missing.");
         continue;
       }
-      ROS_INFO_STREAM("Loaded checkpoint " << checkpoints_.size() << ": " << vector3ToString(checkpoint.p1) << " --> " << vector3ToString(checkpoint.p2));
+      ROS_INFO_STREAM("Loaded checkpoint " << checkpoints_.size() << ": " << vector2ToString(checkpoint.p1) << " --> " << vector2ToString(checkpoint.p2));
       checkpoints_.push_back(std::move(checkpoint));
     }
   }

@@ -23,6 +23,8 @@ std::string setToString(const std::set<T>& set) {
 }
 
 std::string vector3ToString(const Eigen::Vector3d& vec3);
+std::string vector2ToString(const Eigen::Vector2d& vec2);
+
 
 template <typename T>
 bool loadMandatoryParameter(const ros::NodeHandle& nh, const std::string& key, T& val) {
@@ -44,7 +46,9 @@ std::string getVector3Labels(const std::string& base_name);
 
 Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot);
 
-bool loadVector3FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec3_list, Eigen::Vector3d& vec3, const std::string& parameter_ns);
+bool loadVector2FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec2_list, Eigen::Vector2d& vec2, const std::string& parameter_ns);
+
+
 
 
 

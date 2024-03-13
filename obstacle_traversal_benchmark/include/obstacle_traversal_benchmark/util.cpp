@@ -86,21 +86,21 @@ Eigen::Vector3d rotationToEulerAngles(const Eigen::Matrix3d &rot) {
   return {roll, pitch, yaw};
 }
 
-bool loadVector3FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec3_list, Eigen::Vector3d& vec3, const std::string& parameter_ns) {
-  if (vec3_list.getType() != XmlRpc::XmlRpcValue::TypeArray) {
+bool loadVector2FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec2_list, Eigen::Vector2d& vec2, const std::string& parameter_ns) {
+  if (vec2_list.getType() != XmlRpc::XmlRpcValue::TypeArray) {
     ROS_ERROR_STREAM("Parameter '" << parameter_ns << "' is not an array.");
     return false;
   }
-  if (vec3_list.size() != 3) {
-    ROS_ERROR_STREAM("Parameter " << parameter_ns << "' is not a Vector3");
+  if (vec2_list.size() != 2) {
+    ROS_ERROR_STREAM("Parameter " << parameter_ns << "' is not a Vector2");
   }
-  for (int j = 0; j < 3; ++j) {
-    switch (vec3_list[j].getType()) {
+  for (int j = 0; j < 2; ++j) {
+    switch (vec2_list[j].getType()) {
       case XmlRpc::XmlRpcValue::TypeDouble:
-        vec3[j] = static_cast<double>(vec3_list[j]);
+        vec2[j] = static_cast<double>(vec2_list[j]);
         break;
       case XmlRpc::XmlRpcValue::TypeInt:
-        vec3[j] = static_cast<int>(vec3_list[j]);
+        vec2[j] = static_cast<int>(vec2_list[j]);
         break;
       default:
         ROS_ERROR_STREAM("Parameter '" << parameter_ns << "[" << j << "] is not a numeral.");
@@ -111,6 +111,9 @@ bool loadVector3FromXmlRpcValue(const XmlRpc::XmlRpcValue& vec3_list, Eigen::Vec
 }
 std::string vector3ToString(const Eigen::Vector3d& vec3) {
   return "[" + std::to_string(vec3.x()) + ", " + std::to_string(vec3.y()) + ", " + std::to_string(vec3.z()) + "]";
+}
+std::string vector2ToString(const Eigen::Vector2d& vec2) {
+  return "[" + std::to_string(vec2.x()) + ", " + std::to_string(vec2.y()) + "]";
 }
 
 }

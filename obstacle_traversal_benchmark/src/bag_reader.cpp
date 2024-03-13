@@ -26,10 +26,13 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
   std::vector<std::string> topics{"/tf", "/tf_static", "/joint_states", "/imu/data"};
   rosbag::View view(bag, rosbag::TopicQuery(topics));
   for (const rosbag::MessageInstance& m: view) {
-    // Check if next checkpoint has been passed
-    // TODO
-    if (checkpoints.empty() && trials.empty()) {
-      trials.emplace_back();
+    if (checkpoints.empty()) {
+      if (trials.empty()) {
+        trials.emplace_back();
+      }
+    } else {
+      // Check if next checkpoint has been passed
+
     }
 
     // Handle joint state msg

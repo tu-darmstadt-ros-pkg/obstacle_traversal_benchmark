@@ -6,8 +6,8 @@
 namespace obstacle_traversal_benchmark {
 
 struct Checkpoint {
-  Eigen::Vector3d p1;
-  Eigen::Vector3d p2;
+  Eigen::Vector2d p1;
+  Eigen::Vector2d p2;
 };
 
 }

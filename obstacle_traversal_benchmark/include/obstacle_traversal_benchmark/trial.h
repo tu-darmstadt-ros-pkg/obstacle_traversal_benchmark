@@ -9,10 +9,15 @@ namespace obstacle_traversal_benchmark {
 
 class Trial {
 public:
-  explicit Trial(const ros::Time& start_time);
   bool saveToCsv(const std::string& csv_file_path) const;
   bool saveImuToCsv(const std::string& csv_file_path) const;
   bool saveStabilityToCsv(const std::string& csv_file_path) const;
+
+  void addImuData(const sensor_msgs::Imu& imu_msg);
+
+  void addStateData(const ros::Time& time,
+                    const hector_math::Pose<double>& robot_pose,
+                    const JointPositionMap& joint_positions);
 
   std::vector<sensor_msgs::Imu>& getImuData();
   std::vector<StabilityDatapoint>& getStabilityData();

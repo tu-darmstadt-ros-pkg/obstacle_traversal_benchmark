@@ -29,7 +29,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
     // Check if next checkpoint has been passed
     // TODO
     if (checkpoints.empty() && trials.empty()) {
-      trials.emplace_back(m.getTime());
+      trials.emplace_back();
     }
 
     // Handle joint state msg
@@ -44,7 +44,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       // Add robot poses
       if (missing_joint_states_.empty()) {
         if (buffer_updated) {
-          addPose(current_trial);
+          addState(current_trial);
         }
       } else {
         ROS_WARN_STREAM("Trial has started but missing joint states: " << setToString(missing_joint_states_));
@@ -92,11 +92,11 @@ void BagReader::updateJointPositionMap(const rosbag::MessageInstance& msg)
 void BagReader::addIMUMessage(Trial& trial, const rosbag::MessageInstance& msg) {
   sensor_msgs::Imu::ConstPtr imu_msg = msg.instantiate<sensor_msgs::Imu>();
   if (imu_msg) {
-    trial.getImuData().push_back(*imu_msg);
+    trial.addImuData(*imu_msg);
   }
 }
 
-void BagReader::addPose(Trial& trial) {
+void BagReader::addState(Trial& trial) {
   // Get current pose
   geometry_msgs::TransformStamped transform_msg;
   try {
@@ -120,11 +120,9 @@ void BagReader::addPose(Trial& trial) {
 
   // Add it
   if (add_pose) {
-    StabilityDatapoint s;
-    s.time = transform_msg.header.stamp;
-    s.robot_pose = transformMsgToHectorMath(transform_msg.transform);
-    s.joint_positions = joint_position_map_;
-    trial.getStabilityData().push_back(std::move(s));
+    trial.addStateData(transform_msg.header.stamp,
+                       transformMsgToHectorMath(transform_msg.transform),
+                       joint_position_map_);
   }
 }
 

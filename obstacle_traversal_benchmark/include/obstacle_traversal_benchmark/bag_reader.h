@@ -20,7 +20,7 @@ private:
   bool updateTfBuffer(const rosbag::MessageInstance& msg);
   void updateJointPositionMap(const rosbag::MessageInstance& msg);
   void addIMUMessage(Trial& trial, const rosbag::MessageInstance& msg);
-  void addPose(Trial& trial);
+  void addState(Trial& trial);
 
   tf2_ros::Buffer tf_buffer_;
   std::unordered_map<std::string, double> joint_position_map_;

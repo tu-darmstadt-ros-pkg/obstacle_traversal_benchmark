@@ -5,9 +5,6 @@
 
 namespace obstacle_traversal_benchmark {
 
-Trial::Trial(const ros::Time& start_time)
-: start_time_(start_time) {}
-
 bool Trial::saveToCsv(const std::string &csv_file_path) const {
   std::string imu_file_path = csv_file_path + "-imu.csv";
   if (!saveImuToCsv(imu_file_path)) {
@@ -78,6 +75,25 @@ std::vector<sensor_msgs::Imu>& Trial::getImuData() {
 
 std::vector<StabilityDatapoint>& Trial::getStabilityData() {
   return stability_data_;
+}
+
+void Trial::addImuData(const sensor_msgs::Imu& imu_msg) {
+  if (imu_data_.empty() && stability_data_.empty()) {
+    start_time_ = imu_msg.header.stamp;
+  }
+  imu_data_.push_back(imu_msg);
+}
+
+void Trial::addStateData(const ros::Time& time, const hector_math::Pose<double>& robot_pose,
+                         const JointPositionMap& joint_positions) {
+  if (imu_data_.empty() && stability_data_.empty()) {
+    start_time_ = time;
+  }
+  StabilityDatapoint s;
+  s.time = time;
+  s.robot_pose = robot_pose;
+  s.joint_positions = joint_positions;
+  stability_data_.push_back(std::move(s));
 }
 
 }

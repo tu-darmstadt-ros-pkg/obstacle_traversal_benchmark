@@ -60,7 +60,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
         bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
         if (intersect) {
           ros::Duration bag_duration = m.getTime() - view.getBeginTime();
-          ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s.");
+          ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s since bag start.");
           next_checkpoint_index = (next_checkpoint_index + 1) % checkpoints.size();
           trials.emplace_back();
         }

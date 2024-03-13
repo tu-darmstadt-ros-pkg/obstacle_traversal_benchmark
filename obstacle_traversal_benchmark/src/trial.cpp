@@ -28,8 +28,7 @@ bool Trial::saveImuToCsv(const std::string &csv_file_path) const {
 
   file << "time,"
        << getVector3Labels("angular_velocity") << ", "
-       << getVector3Labels("linear_acceleration") << ", "
-       << '\n';
+       << getVector3Labels("linear_acceleration") << "\n";
   for (const auto& data_point: imu_data_) {
     ros::Duration duration_since_start = data_point.header.stamp - start_time_;
     file << duration_since_start.toSec() << ", ";
@@ -55,8 +54,7 @@ bool Trial::saveStabilityToCsv(const std::string &csv_file_path) const {
 
   file << "time, "
        << getPoseLabels("robot_pose") << ", "
-       << "stability, "
-       << '\n';
+       << "stability\n";
 
   for (const auto& data_point: stability_data_) {
     ros::Duration duration_since_start = data_point.time - start_time_;

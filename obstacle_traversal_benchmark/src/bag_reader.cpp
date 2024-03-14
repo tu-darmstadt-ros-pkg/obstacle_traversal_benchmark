@@ -37,6 +37,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
 
     if (checkpoints.empty()) {
       if (trials.empty()) {
+        ROS_INFO_STREAM("No checkpoints configured. Creating single trial.");
         trials.emplace_back();
       }
     } else {
@@ -84,8 +85,10 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       }
     }
   }
-  // Ditch the last incomplete trial
-  trials.pop_back();
+  if (!checkpoints.empty()) {
+    // Ditch the last incomplete trial
+    trials.pop_back();
+  }
   bag.close();
   return true;
 }

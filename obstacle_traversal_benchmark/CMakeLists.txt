@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf2_msgs
   sdf_contact_estimation
+  moveit_core
+  moveit_ros_planning
 )
 
 ###################################
@@ -21,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES obstacle_traversal_benchmark
-  CATKIN_DEPENDS eigen_conversions geometry_msgs hector_pose_prediction_interface hector_stability_metrics nav_msgs rosbag sensor_msgs tf2_msgs sdf_contact_estimation
+  CATKIN_DEPENDS eigen_conversions geometry_msgs hector_pose_prediction_interface hector_stability_metrics nav_msgs rosbag sensor_msgs tf2_msgs sdf_contact_estimation moveit_core moveit_ros_planning
 #  DEPENDS system_lib
 )
 

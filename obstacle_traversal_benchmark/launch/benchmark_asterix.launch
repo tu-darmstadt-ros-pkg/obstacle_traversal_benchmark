@@ -7,12 +7,13 @@
 
   <!-- Load robot description -->
   <param name="robot_description" command="$(arg robot_description)" />
-<!--   <param name="robot_description_semantic" textfile="$(find asterix_moveit_config)/config/asterix_ugv.srdf" /> -->
+  <param name="robot_description_semantic" textfile="$(find asterix_moveit_config)/config/asterix_ugv.srdf" />
 
   <node pkg="obstacle_traversal_benchmark" type="obstacle_traversal_benchmark_node" name="obstacle_traversal_benchmark" output="screen" clear_params="true" ><!--launch-prefix="gdb -args"-->
     <param name="bag_file_path" value="$(arg bag_path)"/>
     <param name="result_folder" value="$(find obstacle_traversal_benchmark)/data"/>
     <param name="time_resolution" value="0.1"/>
+    <param name="visualization_wait_time" value="0.2"/>
 
     <!-- load map -->
     <rosparam subst_value="true" ns="sdf_contact_estimation/sdf_map">

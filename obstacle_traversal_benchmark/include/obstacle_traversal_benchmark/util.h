@@ -55,8 +55,7 @@ bool getLineIntersection(const Eigen::Vector2d& p0,
                          const Eigen::Vector2d& p3,
                          Eigen::Vector2d& intersection);
 
-
-
+void deleteAllMarkers(const ros::Publisher& pub);
 
 }
 

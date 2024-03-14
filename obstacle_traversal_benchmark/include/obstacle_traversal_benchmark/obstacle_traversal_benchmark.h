@@ -3,6 +3,9 @@
 
 #include <ros/ros.h>
 #include <hector_pose_prediction_interface/pose_predictor.h>
+#include <moveit/robot_model/robot_model.h>
+#include <visualization_msgs/MarkerArray.h>
+
 #include <obstacle_traversal_benchmark/bag_reader.h>
 
 namespace obstacle_traversal_benchmark {
@@ -16,6 +19,10 @@ private:
   hector_pose_prediction_interface::PosePredictor<double>::Ptr createPosePredictor(const ros::NodeHandle& nh);
   void estimateStability(Trial& trial);
 
+  void publishRobotState(const hector_math::Pose<double>& pose,
+                         const JointPositionMap& joint_positions,
+                         const hector_pose_prediction_interface::SupportPolygon<double>& support_polygon);
+
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
 
@@ -27,6 +34,11 @@ private:
   std::string result_folder_;
   double time_resolution_;
   std::vector<Checkpoint> checkpoints_;
+
+  // State publishing
+  double visualization_wait_time_;
+  robot_model::RobotModelPtr robot_model_;
+  ros::Publisher robot_state_pub_;
 };
 
 }

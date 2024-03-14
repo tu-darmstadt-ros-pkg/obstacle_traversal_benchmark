@@ -2,6 +2,8 @@
 
 #include <filesystem>
 #include <ros/console.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
 
 namespace obstacle_traversal_benchmark {
 
@@ -136,6 +138,14 @@ bool getLineIntersection(const Eigen::Vector2d& p0, const Eigen::Vector2d& p1, c
   }
 
   return false; // No collision
+}
+void deleteAllMarkers(const ros::Publisher& pub) {
+  visualization_msgs::MarkerArray array;
+  visualization_msgs::Marker marker;
+  marker.action = visualization_msgs::Marker::DELETEALL;
+  marker.header.frame_id = "world"; // this has to be set correctly for the deletion to work
+  array.markers.push_back(marker);
+  pub.publish(array);
 }
 
 }

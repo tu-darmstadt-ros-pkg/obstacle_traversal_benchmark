@@ -4,6 +4,9 @@
 #include <sdf_contact_estimation/sdf_contact_estimation.h>
 #include <hector_stability_metrics/metrics/force_angle_stability_measure.h>
 #include <filesystem>
+#include <moveit/robot_model_loader/robot_model_loader.h>
+#include <moveit/robot_state/robot_state.h>
+#include <hector_pose_prediction_ros/visualization.h>
 
 namespace obstacle_traversal_benchmark {
 
@@ -14,6 +17,14 @@ ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh
   ros::NodeHandle pose_prediction_nh(pnh, "sdf_contact_estimation");
   pose_predictor_ = createPosePredictor(pose_prediction_nh);
   bag_reader_ = std::make_shared<BagReader>(bag_file_path_, pose_predictor_->robotModel()->jointNames(), time_resolution_);
+
+  robot_model_loader::RobotModelLoader robot_model_loader("robot_description", false);
+  robot_model_ = robot_model_loader.getModel();
+  if (!robot_model_.get()){
+    ROS_ERROR("Could not load robot model!");
+  } else {
+    robot_state_pub_ = pnh_.advertise<visualization_msgs::MarkerArray>("robot_state", 10, false);
+  }
 }
 
 void ObstacleTraversalBenchmark::runEvaluation() {
@@ -40,6 +51,7 @@ bool ObstacleTraversalBenchmark::loadParameters(const ros::NodeHandle &nh) {
     return false;
   }
   time_resolution_ = nh.param<double>("time_resolution", 1.0);
+  visualization_wait_time_ = nh.param<double>("visualization_wait_time", 0.0);
 
   XmlRpc::XmlRpcValue checkpoints_list;
   if (nh.getParam("checkpoints", checkpoints_list)) {
@@ -107,7 +119,32 @@ void ObstacleTraversalBenchmark::estimateStability(Trial &trial) {
     } else {
       data_point.estimated_stability = std::nan("");
     }
+    publishRobotState(data_point.robot_pose, data_point.joint_positions, estimated_support_polygon);
+    ros::Duration(visualization_wait_time_).sleep();
   }
+}
+void ObstacleTraversalBenchmark::publishRobotState(
+    const hector_math::Pose<double> &pose, const JointPositionMap &joint_positions,
+    const hector_pose_prediction_interface::SupportPolygon<double> &support_polygon)
+{
+  if (!robot_model_) {
+    return;
+  }
+  deleteAllMarkers(robot_state_pub_);
+  robot_state::RobotState state(robot_model_);
+  state.setVariablePositions(std::map<std::string, double>(joint_positions.begin(), joint_positions.end()));
+  state.setJointPositions("world_virtual_joint", pose.asTransform());
+
+  std_msgs::ColorRGBA color;
+  color.r = 0;
+  color.g = 1;
+  color.b = 0;
+  color.a = 0.7;
+  visualization_msgs::MarkerArray array;
+  state.getRobotMarkers(array, robot_model_->getLinkModelNames(), color, "robot_state", ros::Duration(0));
+
+  hector_pose_prediction_interface::visualization::addSupportPolygonToMarkerArray(array, support_polygon, "world");
+  robot_state_pub_.publish(array);
 }
 
 }

@@ -2,7 +2,5 @@ sdf_contact_estimation/sdf_map/sdf_file_path: $(find whole_body_planning_data)/s
 checkpoints:
   - p1: [1, 1]
     p2: [1, -1]
-  #- p1: [3, 1]
-    #p2: [3, -1]
   - p1: [7.5, 1]
     p2: [7.5, -1]

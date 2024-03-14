@@ -37,6 +37,7 @@ bool Trial::saveImuToCsv(const std::string &csv_file_path) const {
   }
 
   file.close();
+  ROS_INFO_STREAM("Saved IMU data to " << csv_file_path);
   return true;
 }
 
@@ -66,6 +67,7 @@ bool Trial::saveStabilityToCsv(const std::string &csv_file_path) const {
   }
 
   file.close();
+  ROS_INFO_STREAM("Saved stability data to " << csv_file_path);
   return true;
 }
 

@@ -85,7 +85,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       }
     }
   }
-  if (!checkpoints.empty()) {
+  if (!checkpoints.empty() && !trials.empty()) {
     // Ditch the last incomplete trial
     trials.pop_back();
   }

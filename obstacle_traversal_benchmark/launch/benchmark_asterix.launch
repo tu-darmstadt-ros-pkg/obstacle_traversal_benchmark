@@ -27,7 +27,7 @@
 
     <!-- sdf contact estimation parameters -->
     <rosparam file="$(find sdf_contact_estimation)/config/asterix_shape_config.yaml" command="load" ns="sdf_contact_estimation/shape_model" />
-    <rosparam file="$(find sdf_contact_estimation)/config/optimization.yaml" command="load" ns="sdf_contact_estimation"/>
+    <rosparam file="$(find obstacle_traversal_benchmark)/config/contact_estimation_config.yaml" command="load" ns="sdf_contact_estimation"/>
   </node>
 
   <!-- rviz ui -->

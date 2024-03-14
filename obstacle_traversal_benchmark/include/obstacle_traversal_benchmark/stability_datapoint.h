@@ -9,6 +9,7 @@ namespace obstacle_traversal_benchmark {
 struct StabilityDatapoint {
   ros::Time time;
   hector_math::Pose<double> robot_pose;
+  double travelled_distance;
   JointPositionMap joint_positions;
   double estimated_stability;
 };

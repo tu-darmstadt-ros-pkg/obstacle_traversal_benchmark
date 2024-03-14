@@ -8,7 +8,7 @@
 namespace obstacle_traversal_benchmark {
 
 ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh, const ros::NodeHandle &pnh)
- : nh_(nh), pnh_(pnh)
+ : nh_(nh), pnh_(pnh), time_resolution_(0.1)
 {
   loadParameters(pnh);
   ros::NodeHandle pose_prediction_nh(pnh, "sdf_contact_estimation");

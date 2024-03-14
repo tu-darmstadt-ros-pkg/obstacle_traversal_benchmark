@@ -53,12 +53,14 @@ bool Trial::saveStabilityToCsv(const std::string &csv_file_path) const {
   file.open(csv_file_path);
 
   file << "time, "
+       << "travelled_distance, "
        << getPoseLabels("robot_pose") << ", "
        << "stability\n";
 
   for (const auto& data_point: stability_data_) {
     ros::Duration duration_since_start = data_point.time - start_time_;
     file << duration_since_start.toSec() << ", ";
+    file << data_point.travelled_distance << ", ";
     file << poseToCsv(data_point.robot_pose) << ", ";
     file << data_point.estimated_stability << '\n';
   }
@@ -87,10 +89,19 @@ void Trial::addStateData(const ros::Time& time, const hector_math::Pose<double>&
   if (imu_data_.empty() && stability_data_.empty()) {
     start_time_ = time;
   }
+
   StabilityDatapoint s;
   s.time = time;
   s.robot_pose = robot_pose;
   s.joint_positions = joint_positions;
+
+  // Compute travelled distance
+  if (stability_data_.empty()) {
+    s.travelled_distance = 0.0;
+  } else {
+    double distance = (robot_pose.translation() - stability_data_.back().robot_pose.translation()).norm();
+    s.travelled_distance = stability_data_.back().travelled_distance + distance;
+  }
   stability_data_.push_back(std::move(s));
 }
 

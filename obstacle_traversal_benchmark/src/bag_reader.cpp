@@ -29,6 +29,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
   bool last_pose_set = false;
   size_t next_checkpoint_index = 0;
   Eigen::Isometry3d last_pose;
+  bool wait_for_next_trial = false;
   for (const rosbag::MessageInstance& m: view) {
     // Handle joint state msg
     updateJointPositionMap(m);
@@ -60,10 +61,17 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
         Eigen::Vector2d intersection;
         bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
         if (intersect) {
+          next_checkpoint_index++;
           ros::Duration bag_duration = m.getTime() - view.getBeginTime();
-          ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s since bag start.");
-          next_checkpoint_index = (next_checkpoint_index + 1) % checkpoints.size();
-          trials.emplace_back();
+          if (next_checkpoint_index == checkpoints.size()) {
+            ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << bag_duration.toSec() << "s since bag start.");
+            wait_for_next_trial = true;
+            next_checkpoint_index = 0;
+          } else {
+            ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s since bag start.");
+            trials.emplace_back();
+            wait_for_next_trial = false;
+          }
         }
       }
 
@@ -72,7 +80,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
     }
 
     // Add Data
-    if (!trials.empty()) {
+    if (!trials.empty() && !wait_for_next_trial) {
       Trial& current_trial = trials.back();
       addIMUMessage(current_trial, m);
       // Add robot poses
@@ -85,7 +93,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       }
     }
   }
-  if (!checkpoints.empty() && !trials.empty()) {
+  if (!checkpoints.empty() && !trials.empty() && !wait_for_next_trial) {
     // Ditch the last incomplete trial
     trials.pop_back();
   }

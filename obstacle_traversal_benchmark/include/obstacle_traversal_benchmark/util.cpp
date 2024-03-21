@@ -121,10 +121,10 @@ std::string vector2ToString(const Eigen::Vector2d& vec2) {
 bool getLineIntersection(const Eigen::Vector2d& p0, const Eigen::Vector2d& p1, const Eigen::Vector2d& p2,
                          const Eigen::Vector2d& p3, Eigen::Vector2d& intersection) {
   Eigen::Vector2d s1 = p1 - p0;
-  Eigen::Vector2d s2= p3 - p2;
+  Eigen::Vector2d s2 = p3 - p2;
 
   double f = -s2.x() * s1.y() + s1.x() * s2.y();
-  if (f < 0.001) { // Collinear or parallel
+  if (std::abs(f) < 0.001) { // Collinear or parallel
     return false;
   }
   double s = (-s1.y() * (p0.x() - p2.x()) + s1.x() * (p0.y() - p2.y())) / f;

@@ -127,4 +127,15 @@ nav_msgs::Path Trial::getPath() const {
   return path_msg;
 }
 
+ros::Time Trial::getEndTime() {
+  const ros::Time& imu_end_time = imu_data_.back().header.stamp;
+  const ros::Time& stability_end_time = stability_data_.back().time;
+  return imu_end_time > stability_end_time ? imu_end_time : stability_end_time;
 }
+
+ros::Duration Trial::getDuration() {
+  return getEndTime() - start_time_;
+}
+
+}
+

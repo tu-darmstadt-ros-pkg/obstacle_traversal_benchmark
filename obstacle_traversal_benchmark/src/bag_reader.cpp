@@ -69,25 +69,29 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
             ros::Duration bag_duration = m.getTime() - view.getBeginTime();
             boost::posix_time::ptime posix_time = m.getTime().toBoost();
             std::string time_date_str = boost::posix_time::to_iso_extended_string(posix_time);
+
+            bool start_new_trial;
             if (checkpoints.size() > 1) {
-              if (next_checkpoint_index == checkpoints.size()) {
-                ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
-                wait_for_next_trial = true;
-                next_checkpoint_index = 0;
-              } else {
-                ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
-                trials.emplace_back();
-                wait_for_next_trial = false;
-              }
+              // Do not start new trial after last checkpoint
+              start_new_trial = next_checkpoint_index != checkpoints.size();
             } else {
+              // Start new trial every other pass of single checkpoint
+              start_new_trial = wait_for_next_trial;
+            }
+            next_checkpoint_index = next_checkpoint_index % checkpoints.size();
+
+            if (start_new_trial) {
+              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
+              trials.emplace_back();
+              wait_for_next_trial = false;
+            } else {
+              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
+              wait_for_next_trial = true;
               next_checkpoint_index = 0;
-              if (wait_for_next_trial) {
-                ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
-                trials.emplace_back();
-                wait_for_next_trial = false;
-              } else {
-                ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
-                wait_for_next_trial = true;
+              const double min_trial_time = 3.0;
+              if (trials.back().getDuration().toSec() < min_trial_time) {
+                ROS_WARN_STREAM("Last trial shorter than " << min_trial_time << "s. Removing trial.");
+                trials.pop_back();
               }
             }
 

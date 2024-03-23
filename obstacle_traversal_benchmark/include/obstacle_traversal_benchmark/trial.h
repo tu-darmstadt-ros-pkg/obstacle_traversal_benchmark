@@ -20,7 +20,10 @@ public:
                     const hector_math::Pose<double>& robot_pose,
                     const JointPositionMap& joint_positions);
 
-  nav_msgs::Path getPath() const;
+  [[nodiscard]] nav_msgs::Path getPath() const;
+
+  ros::Time getEndTime();
+  ros::Duration getDuration();
 
   std::vector<sensor_msgs::Imu>& getImuData();
   std::vector<StabilityDatapoint>& getStabilityData();

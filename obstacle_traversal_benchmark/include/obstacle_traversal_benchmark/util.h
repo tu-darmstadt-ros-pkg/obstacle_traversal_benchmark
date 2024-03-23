@@ -5,6 +5,7 @@
 #include <geometry_msgs/Pose.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Transform.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <ros/ros.h>
 
 namespace obstacle_traversal_benchmark {
@@ -56,6 +57,7 @@ bool getLineIntersection(const Eigen::Vector2d& p0,
                          Eigen::Vector2d& intersection);
 
 void deleteAllMarkers(const ros::Publisher& pub);
+void fixMarkerIds(visualization_msgs::MarkerArray& array);
 
 }
 

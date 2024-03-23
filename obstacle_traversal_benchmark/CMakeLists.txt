@@ -52,6 +52,7 @@ set(SOURCES
   src/trial.cpp
   include/obstacle_traversal_benchmark/util.cpp
   include/obstacle_traversal_benchmark/util.h
+  src/checkpoint.cpp
 )
 
 add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})

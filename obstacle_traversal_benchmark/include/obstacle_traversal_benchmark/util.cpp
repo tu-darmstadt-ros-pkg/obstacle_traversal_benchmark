@@ -147,5 +147,10 @@ void deleteAllMarkers(const ros::Publisher& pub) {
   array.markers.push_back(marker);
   pub.publish(array);
 }
+void fixMarkerIds(visualization_msgs::MarkerArray& array) {
+  for (int32_t i = 0; i < array.markers.size(); ++i) {
+    array.markers[i].id = i;
+  }
+}
 
 }

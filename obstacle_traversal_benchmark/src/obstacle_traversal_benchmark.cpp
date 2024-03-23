@@ -25,6 +25,9 @@ ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh
   } else {
     robot_state_pub_ = pnh_.advertise<visualization_msgs::MarkerArray>("robot_state", 10, false);
   }
+
+  checkpoint_vis_pub_ = pnh_.advertise<visualization_msgs::MarkerArray>("checkpoints", 10, true);
+  publishCheckpoints();
 }
 
 void ObstacleTraversalBenchmark::runEvaluation() {
@@ -155,6 +158,15 @@ void ObstacleTraversalBenchmark::publishPaths(const std::vector<Trial> &trials) 
     path_pubs_.push_back(pnh_.advertise<nav_msgs::Path>("path/trial_" + std::to_string(i), 10, true));
     path_pubs_.back().publish(trial.getPath());
   }
+}
+
+void ObstacleTraversalBenchmark::publishCheckpoints() {
+  visualization_msgs::MarkerArray array;
+  for (const auto& checkpoint: checkpoints_) {
+    array.markers.push_back(checkpoint.getMarker());
+  }
+  fixMarkerIds(array);
+  checkpoint_vis_pub_.publish(array);
 }
 
 }

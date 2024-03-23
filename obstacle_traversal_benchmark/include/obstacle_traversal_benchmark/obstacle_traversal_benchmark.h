@@ -23,6 +23,7 @@ private:
                          const JointPositionMap& joint_positions,
                          const hector_pose_prediction_interface::SupportPolygon<double>& support_polygon);
   void publishPaths(const std::vector<Trial>& trials);
+  void publishCheckpoints();
 
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
@@ -41,6 +42,7 @@ private:
   robot_model::RobotModelPtr robot_model_;
   ros::Publisher robot_state_pub_;
   std::vector<ros::Publisher> path_pubs_;
+  ros::Publisher checkpoint_vis_pub_;
 };
 
 }

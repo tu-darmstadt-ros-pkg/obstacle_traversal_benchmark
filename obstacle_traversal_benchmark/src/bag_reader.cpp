@@ -30,6 +30,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
   bool last_pose_set = false;
   size_t next_checkpoint_index = 0;
   Eigen::Isometry3d last_pose;
+  ros::Time last_pose_stamp;
   bool wait_for_next_trial = !checkpoints.empty();
   for (const rosbag::MessageInstance& m: view) {
     // Handle joint state msg
@@ -56,43 +57,53 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       tf::transformMsgToEigen(transform_msg.transform, current_pose);
 
       if (last_pose_set) {
-        const Checkpoint& next_checkpoint = checkpoints[next_checkpoint_index];
-        Eigen::Vector2d previous_position = last_pose.translation().block<2, 1>(0, 0);
-        Eigen::Vector2d current_position = current_pose.translation().block<2, 1>(0, 0);
-        Eigen::Vector2d intersection;
-        bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
-        if (intersect) {
-          next_checkpoint_index++;
-          ros::Duration bag_duration = m.getTime() - view.getBeginTime();
-          boost::posix_time::ptime posix_time = m.getTime().toBoost();
-          std::string time_date_str = boost::posix_time::to_iso_extended_string(posix_time);
-          if (checkpoints.size() > 1) {
-            if (next_checkpoint_index == checkpoints.size()) {
-              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
-              wait_for_next_trial = true;
+        ros::Duration time_diff = transform_msg.header.stamp - last_pose_stamp;
+        if (time_diff.toSec() > time_resolution_) {
+          const Checkpoint& next_checkpoint = checkpoints[next_checkpoint_index];
+          Eigen::Vector2d previous_position = last_pose.translation().block<2, 1>(0, 0);
+          Eigen::Vector2d current_position = current_pose.translation().block<2, 1>(0, 0);
+          Eigen::Vector2d intersection;
+          bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
+          if (intersect) {
+            next_checkpoint_index++;
+            ros::Duration bag_duration = m.getTime() - view.getBeginTime();
+            boost::posix_time::ptime posix_time = m.getTime().toBoost();
+            std::string time_date_str = boost::posix_time::to_iso_extended_string(posix_time);
+            if (checkpoints.size() > 1) {
+              if (next_checkpoint_index == checkpoints.size()) {
+                ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
+                wait_for_next_trial = true;
+                next_checkpoint_index = 0;
+              } else {
+                ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
+                trials.emplace_back();
+                wait_for_next_trial = false;
+              }
+            } else {
               next_checkpoint_index = 0;
-            } else {
-              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
-              trials.emplace_back();
-              wait_for_next_trial = false;
+              if (wait_for_next_trial) {
+                ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
+                trials.emplace_back();
+                wait_for_next_trial = false;
+              } else {
+                ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
+                wait_for_next_trial = true;
+              }
             }
-          } else {
-            next_checkpoint_index = 0;
-            if (wait_for_next_trial) {
-              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
-              trials.emplace_back();
-              wait_for_next_trial = false;
-            } else {
-              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
-              wait_for_next_trial = true;
-            }
-          }
 
+          }
+          last_pose = current_pose;
+          last_pose_stamp = transform_msg.header.stamp;
         }
+      } else {
+        last_pose = current_pose;
+        last_pose_stamp = transform_msg.header.stamp;
+        last_pose_set = true;
       }
 
-      last_pose = current_pose;
-      last_pose_set = true;
+
+
+
     }
 
     // Add Data

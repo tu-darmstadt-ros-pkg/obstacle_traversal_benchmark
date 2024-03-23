@@ -22,6 +22,7 @@ private:
   void publishRobotState(const hector_math::Pose<double>& pose,
                          const JointPositionMap& joint_positions,
                          const hector_pose_prediction_interface::SupportPolygon<double>& support_polygon);
+  void publishPaths(const std::vector<Trial>& trials);
 
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
@@ -39,6 +40,7 @@ private:
   double visualization_wait_time_;
   robot_model::RobotModelPtr robot_model_;
   ros::Publisher robot_state_pub_;
+  std::vector<ros::Publisher> path_pubs_;
 };
 
 }

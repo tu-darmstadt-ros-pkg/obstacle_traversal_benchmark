@@ -20,7 +20,7 @@ ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh
 
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description", false);
   robot_model_ = robot_model_loader.getModel();
-  if (!robot_model_.get()){
+  if (!robot_model_){
     ROS_ERROR("Could not load robot model!");
   } else {
     robot_state_pub_ = pnh_.advertise<visualization_msgs::MarkerArray>("robot_state", 10, false);
@@ -41,6 +41,8 @@ void ObstacleTraversalBenchmark::runEvaluation() {
     std::string base_path = result_folder_ + "/" + bag_path.stem().string() + "_trial-" + std::to_string(i);
     trial.saveToCsv(base_path);
   }
+
+  publishPaths(trials);
 }
 
 bool ObstacleTraversalBenchmark::loadParameters(const ros::NodeHandle &nh) {
@@ -145,6 +147,14 @@ void ObstacleTraversalBenchmark::publishRobotState(
 
   hector_pose_prediction_interface::visualization::addSupportPolygonToMarkerArray(array, support_polygon, "world");
   robot_state_pub_.publish(array);
+}
+
+void ObstacleTraversalBenchmark::publishPaths(const std::vector<Trial> &trials) {
+  for (size_t i = 0; i < trials.size(); ++i) {
+    const auto& trial = trials[i];
+    path_pubs_.push_back(pnh_.advertise<nav_msgs::Path>("path/trial_" + std::to_string(i), 10, true));
+    path_pubs_.back().publish(trial.getPath());
+  }
 }
 
 }

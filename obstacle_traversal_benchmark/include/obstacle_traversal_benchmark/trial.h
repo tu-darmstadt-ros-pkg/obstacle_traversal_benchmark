@@ -3,6 +3,7 @@
 
 #include <obstacle_traversal_benchmark/imu_datapoint.h>
 #include <sensor_msgs/Imu.h>
+#include <nav_msgs/Path.h>
 #include <obstacle_traversal_benchmark/stability_datapoint.h>
 
 namespace obstacle_traversal_benchmark {
@@ -18,6 +19,8 @@ public:
   void addStateData(const ros::Time& time,
                     const hector_math::Pose<double>& robot_pose,
                     const JointPositionMap& joint_positions);
+
+  nav_msgs::Path getPath() const;
 
   std::vector<sensor_msgs::Imu>& getImuData();
   std::vector<StabilityDatapoint>& getStabilityData();

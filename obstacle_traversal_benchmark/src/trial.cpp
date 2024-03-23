@@ -2,6 +2,7 @@
 
 #include <obstacle_traversal_benchmark/util.h>
 #include <fstream>
+#include <eigen_conversions/eigen_msg.h>
 
 namespace obstacle_traversal_benchmark {
 
@@ -105,6 +106,25 @@ void Trial::addStateData(const ros::Time& time, const hector_math::Pose<double>&
     s.travelled_distance = stability_data_.back().travelled_distance + distance;
   }
   stability_data_.push_back(std::move(s));
+}
+
+nav_msgs::Path Trial::getPath() const {
+  nav_msgs::Path path_msg;
+  if (stability_data_.empty()) {
+    return path_msg;
+  }
+  path_msg.header.stamp = stability_data_.front().time;
+  path_msg.header.frame_id = "world";
+  path_msg.poses.reserve(stability_data_.size());
+  for (const auto& dp: stability_data_) {
+    Eigen::Isometry3d robot_pose = dp.robot_pose.asTransform();
+    geometry_msgs::PoseStamped pose_msg;
+    pose_msg.header.stamp = dp.time;
+    pose_msg.header.frame_id = "world";
+    tf::poseEigenToMsg(robot_pose, pose_msg.pose);
+    path_msg.poses.push_back(std::move(pose_msg));
+  }
+  return path_msg;
 }
 
 }

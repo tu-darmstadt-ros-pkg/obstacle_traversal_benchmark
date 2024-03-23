@@ -3,7 +3,8 @@ Panels:
     Help Height: 138
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /Path1
       Splitter Ratio: 0.5432098507881165
     Tree Height: 1705
   - Class: rviz/Selection
@@ -39,15 +40,36 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /obstacle_traversal_benchmark/robot_state
       Name: MarkerArray
       Namespaces:
-        robot_state: true
-        stability_text: true
-        support_polygon: true
-        support_polygon_points: true
+        {}
       Queue Size: 100
+      Value: false
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 252; 175; 62
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Billboards
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Queue Size: 10
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /obstacle_traversal_benchmark/path/trial_0
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
@@ -77,7 +99,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.668669700622559
+      Distance: 5.655910491943359
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -85,17 +107,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 3.1642000675201416
-        Y: -0.30499571561813354
-        Z: 0.04520469158887863
+        X: -0.4431593418121338
+        Y: -0.21795707941055298
+        Z: 0.007549966219812632
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.849796712398529
+      Pitch: 0.8197972178459167
       Target Frame: <Fixed Frame>
-      Yaw: 4.694085121154785
+      Yaw: 6.26409912109375
     Saved: ~
 Window Geometry:
   Displays:

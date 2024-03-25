@@ -1,0 +1,5 @@
+sdf_contact_estimation/sdf_map/sdf_file_path: $(find whole_body_planning_data)/sdf/real/2024-03-22_ahg_obstacle_parcours.esdf
+checkpoints:
+  - p1: [4.7, -1.0]
+    p2: [4.7, 0.72]
+

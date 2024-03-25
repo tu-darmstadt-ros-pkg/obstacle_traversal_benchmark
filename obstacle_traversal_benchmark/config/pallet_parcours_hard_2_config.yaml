@@ -1,0 +1,6 @@
+sdf_contact_estimation/sdf_map/sdf_file_path: $(find whole_body_planning_data)/sdf/gazebo/gazebo_oc_pallet_parcours_hard_2.esdf
+checkpoints:
+  - p1: [0.75, 1]
+    p2: [0.75, -1]
+  - p1: [-0.75, 1]
+    p2: [-0.75, -1]

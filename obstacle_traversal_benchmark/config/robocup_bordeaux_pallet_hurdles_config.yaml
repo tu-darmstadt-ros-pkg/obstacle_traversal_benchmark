@@ -1,0 +1,6 @@
+sdf_contact_estimation/sdf_map/sdf_file_path: $(find whole_body_planning_data)/sdf/real/2023-07-08_robocup_bordeaux_pallet_hurdles.esdf
+checkpoints:
+  - p1: [1.5, 0.59]
+    p2: [1.44, -0.4]
+  - p1: [5.4, -0.78]
+    p2: [5.44, -1.74]

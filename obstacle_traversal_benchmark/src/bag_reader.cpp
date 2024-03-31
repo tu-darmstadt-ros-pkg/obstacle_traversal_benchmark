@@ -32,6 +32,8 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
   Eigen::Isometry3d last_pose;
   ros::Time last_pose_stamp;
   bool wait_for_next_trial = !checkpoints.empty();
+  ros::Time last_checkpoint_crossed;
+  bool first_checkpoint_crossed = false;
   for (const rosbag::MessageInstance& m: view) {
     // Handle joint state msg
     updateJointPositionMap(m);
@@ -64,7 +66,10 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
           Eigen::Vector2d current_position = current_pose.translation().block<2, 1>(0, 0);
           Eigen::Vector2d intersection;
           bool intersect = getLineIntersection(next_checkpoint.p1, next_checkpoint.p2, previous_position, current_position, intersection);
-          if (intersect) {
+          bool checkpoint_crossed = intersect && (!first_checkpoint_crossed || (m.getTime() - last_checkpoint_crossed).toSec() > 2.0);
+          if (checkpoint_crossed) {
+            first_checkpoint_crossed = true;
+            last_checkpoint_crossed = m.getTime();
             next_checkpoint_index++;
             ros::Duration bag_duration = m.getTime() - view.getBeginTime();
             boost::posix_time::ptime posix_time = m.getTime().toBoost();

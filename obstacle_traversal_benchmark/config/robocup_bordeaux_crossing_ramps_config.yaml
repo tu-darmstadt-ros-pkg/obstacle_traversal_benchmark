@@ -1,0 +1,6 @@
+sdf_contact_estimation/sdf_map/sdf_file_path: $(find whole_body_planning_data)/sdf/real/2023-07-07_robocup_bordeaux_crossing_ramps.esdf
+checkpoints:
+  - p1: [1.21, -0.26]
+    p2: [1.26, 0.57]
+  - p1: [4.74, 1.17]
+    p2: [4.71, 1.89]

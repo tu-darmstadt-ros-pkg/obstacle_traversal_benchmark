@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="bag_path" />
+  <arg name="map" />
+  <arg name="rviz" default="false"/>
+  <arg name="robot_description" default="$(find xacro)/xacro $(find onix_chassis_description)/urdf/onix_complete.urdf.xacro"/>
+
+  <!-- Load robot description -->
+  <param name="robot_description" command="$(arg robot_description)" />
+  <param name="robot_description_semantic" textfile="$(find onix_moveit_config)/config/onix.srdf" />
+
+  <node pkg="obstacle_traversal_benchmark" type="obstacle_traversal_benchmark_node" name="obstacle_traversal_benchmark" output="screen" clear_params="true" ><!--launch-prefix="gdb -args"-->
+    <param name="bag_file_path" value="$(arg bag_path)"/>
+    <param name="result_folder" value="$(find obstacle_traversal_benchmark)/data"/>
+    <param name="time_resolution" value="0.1"/>
+    <param name="visualization_wait_time" value="0.0"/>
+
+    <!-- load map -->
+    <rosparam subst_value="true" ns="sdf_contact_estimation/sdf_map">
+      voxel_size: 0.05
+      use_esdf: true
+      truncation_distance: 0.4
+    </rosparam>
+
+    <!-- map config -->
+    <rosparam file="$(eval find('obstacle_traversal_benchmark') + '/config/' + arg('map') + '_config.yaml')" command="load" subst_value="true"/>
+
+    <!-- sdf contact estimation parameters -->
+    <rosparam file="$(find sdf_contact_estimation)/config/onix_shape_config.yaml" command="load" ns="sdf_contact_estimation/shape_model" />
+    <rosparam file="$(find obstacle_traversal_benchmark)/config/contact_estimation_config.yaml" command="load" ns="sdf_contact_estimation"/>
+  </node>
+
+  <!-- rviz ui -->
+  <include if="$(arg rviz)" file="$(find obstacle_traversal_benchmark)/launch/rviz.launch"/>
+
+</launch>

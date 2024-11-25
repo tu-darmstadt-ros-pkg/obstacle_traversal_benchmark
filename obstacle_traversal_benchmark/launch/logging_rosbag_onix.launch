@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="log_folder" default="$(find obstacle_traversal_benchmark)"/>
+
+  <node pkg="rosbag" type="record" name="rosbag_record_standard_data" respawn="true" output="screen"
+        args="--repeat-latched -o $(arg log_folder)/bags/obstacle_traversal_record
+          /tf
+          /tf_static
+          /joint_states
+          /livox/data
+          /onix_chassis/imu
+          /odom
+          /onix_chassis/main_tracks/diff_drive_controller/odom
+          /onix_chassis/cmd_vel_teleop
+          /onix_chassis/main_tracks/cmd_vel
+          /robot_pose
+        "
+/>
+
+</launch>

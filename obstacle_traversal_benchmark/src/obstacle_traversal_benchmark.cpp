@@ -17,6 +17,8 @@ ObstacleTraversalBenchmark::ObstacleTraversalBenchmark(const ros::NodeHandle &nh
   ros::NodeHandle pose_prediction_nh(pnh, "sdf_contact_estimation");
   pose_predictor_ = createPosePredictor(pose_prediction_nh);
   bag_reader_ = std::make_shared<BagReader>(bag_file_path_, pose_predictor_->robotModel()->jointNames(), time_resolution_);
+  ros::NodeHandle bag_reader_nh(pnh_, "bag_reader");
+  bag_reader_->loadParametersFromNamespace(bag_reader_nh);
 
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description", false);
   robot_model_ = robot_model_loader.getModel();

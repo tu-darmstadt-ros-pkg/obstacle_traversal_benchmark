@@ -9,7 +9,13 @@
 namespace obstacle_traversal_benchmark {
 
 BagReader::BagReader(std::string bag_path, std::vector<std::string> joint_names, double time_resolution)
-  : bag_path_(std::move(bag_path)), joint_names_(std::move(joint_names)), time_resolution_(time_resolution)
+  : bag_path_(std::move(bag_path)),
+    joint_names_(std::move(joint_names)),
+    time_resolution_(time_resolution),
+    tf_topic_("/tf"),
+    tf_static_topic_("/tf_static"),
+    joint_states_topic_("/joint_states"),
+    imu_topic("/imu/data")
 {}
 
 bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>& checkpoints) {
@@ -25,7 +31,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
     return false;
   }
 
-  std::vector<std::string> topics{"/tf", "/tf_static", "/joint_states", "/imu/data"};
+  std::vector<std::string> topics{tf_topic_, tf_static_topic_, joint_states_topic_, imu_topic};
   rosbag::View view(bag, rosbag::TopicQuery(topics));
   bool last_pose_set = false;
   size_t next_checkpoint_index = 0;
@@ -150,7 +156,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
 bool BagReader::updateTfBuffer(const rosbag::MessageInstance &msg) {
   tf2_msgs::TFMessage::ConstPtr tf_msg = msg.instantiate<tf2_msgs::TFMessage>();
   if (tf_msg) {
-    bool is_static = msg.getTopic() == "/tf_static";
+    bool is_static = msg.getTopic() == tf_static_topic_;
     for (const auto& transform_msg: tf_msg->transforms) {
       ROS_DEBUG_STREAM("Added transform " << transform_msg.header.frame_id << " -> " << transform_msg.child_frame_id << " at time "
                                           << (is_static ? "static" : std::to_string(transform_msg.header.stamp.toSec())));
@@ -216,6 +222,12 @@ void BagReader::addState(Trial& trial) {
                        transformMsgToHectorMath(transform_msg.transform),
                        joint_position_map_);
   }
+}
+void BagReader::loadParametersFromNamespace(const ros::NodeHandle &nh) {
+  nh.getParam("tf_topic", tf_topic_);
+  nh.getParam("tf_static_topic", tf_static_topic_);
+  nh.getParam("joint_states_topic", joint_states_topic_);
+  nh.getParam("imu_topic", imu_topic);
 }
 
 }

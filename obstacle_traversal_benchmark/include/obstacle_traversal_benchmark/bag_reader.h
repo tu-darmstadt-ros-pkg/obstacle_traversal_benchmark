@@ -16,6 +16,7 @@ class BagReader {
 public:
   BagReader(std::string bag_path, std::vector<std::string> joint_names, double time_resolution);
   bool parse(std::vector<Trial>& trials, const std::vector<Checkpoint>& checkpoints);
+  void loadParametersFromNamespace(const ros::NodeHandle& nh);
 private:
   bool updateTfBuffer(const rosbag::MessageInstance& msg);
   void updateJointPositionMap(const rosbag::MessageInstance& msg);
@@ -27,7 +28,13 @@ private:
   std::set<std::string> missing_joint_states_;
   std::string bag_path_;
   std::vector<std::string> joint_names_;
+
+  // Parameters
   double time_resolution_;
+  std::string tf_topic_;
+  std::string tf_static_topic_;
+  std::string joint_states_topic_;
+  std::string imu_topic;
 };
 }
 

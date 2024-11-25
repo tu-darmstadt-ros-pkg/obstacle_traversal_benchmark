@@ -31,16 +31,17 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
   size_t next_checkpoint_index = 0;
   Eigen::Isometry3d last_pose;
   ros::Time last_pose_stamp;
-  bool wait_for_next_trial = !checkpoints.empty();
+  std::vector<Checkpoint> checkpoints_temp = checkpoints;
   ros::Time last_checkpoint_crossed;
   bool first_checkpoint_crossed = false;
+  bool wait_for_next_trial = !checkpoints_temp.empty();
   for (const rosbag::MessageInstance& m: view) {
     // Handle joint state msg
     updateJointPositionMap(m);
     // Handle tf message
     bool buffer_updated = updateTfBuffer(m);
 
-    if (checkpoints.empty()) {
+    if (checkpoints_temp.empty()) {
       if (trials.empty()) {
         ROS_INFO_STREAM("No checkpoints configured. Creating single trial.");
         trials.emplace_back();
@@ -61,7 +62,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       if (last_pose_set) {
         ros::Duration time_diff = transform_msg.header.stamp - last_pose_stamp;
         if (time_diff.toSec() > time_resolution_) {
-          const Checkpoint& next_checkpoint = checkpoints[next_checkpoint_index];
+          const Checkpoint& next_checkpoint = checkpoints_temp[next_checkpoint_index];
           Eigen::Vector2d previous_position = last_pose.translation().block<2, 1>(0, 0);
           Eigen::Vector2d current_position = current_pose.translation().block<2, 1>(0, 0);
           Eigen::Vector2d intersection;
@@ -70,27 +71,36 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
           if (checkpoint_crossed) {
             first_checkpoint_crossed = true;
             last_checkpoint_crossed = m.getTime();
+
             next_checkpoint_index++;
             ros::Duration bag_duration = m.getTime() - view.getBeginTime();
             boost::posix_time::ptime posix_time = m.getTime().toBoost();
             std::string time_date_str = boost::posix_time::to_iso_extended_string(posix_time);
 
+            std::string full_stamp = "[secs: " + std::to_string(m.getTime().sec) + ", nsecs: " + std::to_string(m.getTime().nsec) + "]";
+
+
             bool start_new_trial;
-            if (checkpoints.size() > 1) {
+            if (checkpoints_temp.size() > 1) {
               // Do not start new trial after last checkpoint
-              start_new_trial = next_checkpoint_index != checkpoints.size();
+              start_new_trial = next_checkpoint_index != checkpoints_temp.size();
+              if (!start_new_trial) {
+                std::reverse(checkpoints_temp.begin(), checkpoints_temp.end());
+              }
             } else {
               // Start new trial every other pass of single checkpoint
               start_new_trial = wait_for_next_trial;
             }
-            next_checkpoint_index = next_checkpoint_index % checkpoints.size();
+            next_checkpoint_index = next_checkpoint_index % checkpoints_temp.size();
 
             if (start_new_trial) {
-              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << time_date_str << "s since bag start.");
+//              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << bag_duration.toSec() << "s since bag start.");
+              ROS_INFO_STREAM("Started trial " << trials.size() << " at " << full_stamp << ".");
               trials.emplace_back();
               wait_for_next_trial = false;
             } else {
-              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << time_date_str << "s since bag start.");
+//              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << bag_duration.toSec() << "s since bag start.\n");
+              ROS_INFO_STREAM("Finished trial " << trials.size() - 1<< " at " << full_stamp << ".");
               wait_for_next_trial = true;
               next_checkpoint_index = 0;
               const double min_trial_time = 3.0;
@@ -129,7 +139,7 @@ bool BagReader::parse(std::vector<Trial> &trials, const std::vector<Checkpoint>&
       }
     }
   }
-  if (!checkpoints.empty() && !trials.empty() && !wait_for_next_trial) {
+  if (!checkpoints_temp.empty() && !trials.empty() && !wait_for_next_trial) {
     // Ditch the last incomplete trial
     trials.pop_back();
   }

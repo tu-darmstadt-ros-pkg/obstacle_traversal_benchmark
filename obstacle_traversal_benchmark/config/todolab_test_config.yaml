@@ -1,0 +1,8 @@
+sdf_contact_estimation/sdf_map/sdf_file_path: /home/martin/Documents/bagfiles/onix/2024-11-25_lab_test/map.esdf
+checkpoints:
+  - p1: [-2.3, 1.33]
+    p2: [-2.77, 0.84]
+  - p1: [-1.0, 0.15]
+    p2: [-1.5, -0.15]
+
+

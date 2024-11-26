@@ -1,14 +1,20 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="log_folder" default="$(find obstacle_traversal_benchmark)"/>
+  <arg name="log_folder" default="$(find obstacle_traversal_benchmark)/bags"/>
+
+  <arg name="machine" default=""/>
+  <include unless="$(eval arg('machine') == '')" file="$(find machines)/launch/$(arg machine).machine" >
+    <arg name="default" value="true"/>
+  </include>
 
   <node pkg="rosbag" type="record" name="obstacle_traversal_metrics_bag_record" respawn="true" output="screen"
-        args="--repeat-latched -o $(arg log_folder)/bags/obstacle_traversal_record
+        args="--repeat-latched -o $(arg log_folder)/obstacle_traversal_record
           /tf
           /tf_static
           /joint_states
           /livox/data
           /onix_chassis/imu
+          /livox/imu
           /odom
           /onix_chassis/main_tracks/diff_drive_controller/odom
           /onix_chassis/cmd_vel_teleop
